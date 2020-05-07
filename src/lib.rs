@@ -1,6 +1,6 @@
 use rand::distributions::Distribution;
 use rand_distr::Normal;
-use nalgebra::core::{VectorN, MatrixMN};
+use nalgebra::{VectorN, MatrixMN};
 
 use nalgebra::{DefaultAllocator, Dim, DimName, DimSub, Dynamic, RealField};
 use nalgebra::allocator::Allocator;
@@ -162,7 +162,7 @@ mod tests {
 
     #[test]
     fn test_covar() {
-        use nalgebra::core::dimension::{U2, U3};
+        use nalgebra::dimension::{U2, U3};
 
         let arr = MatrixMN::<f64,U3,U2>::new(
             1.0, 0.1,
@@ -182,7 +182,7 @@ mod tests {
 
     #[test]
     fn test_mean_axis0() {
-        use nalgebra::core::dimension::{U2, U4};
+        use nalgebra::dimension::{U2, U4};
 
         let a1 = MatrixMN::<f64,U2,U4>::new(1.0, 2.0, 3.0, 4.0,
             5.0, 6.0, 7.0, 8.0);
@@ -201,7 +201,7 @@ mod tests {
 
     #[test]
     fn test_rand() {
-        use na::core::dimension::{U4, U25};
+        use na::dimension::{U4, U25};
         let mu = VectorN::<f64,U4>::new(1.0, 2.0, 3.0, 4.0);
         let sigma = nalgebra::MatrixN::<f64,U4>::new(2.0, 0.1, 0.0, 0.0,
                             0.1, 0.2, 0.0, 0.0,
@@ -220,7 +220,7 @@ mod tests {
 
     #[test]
     fn test_rand_dynamic() {
-        use na::core::dimension::{U4,Dynamic};
+        use na::dimension::{U4,Dynamic};
         let mu = VectorN::<f64,U4>::new(1.0, 2.0, 3.0, 4.0);
         let sigma = nalgebra::MatrixN::<f64,U4>::new(2.0, 0.1, 0.0, 0.0,
                             0.1, 0.2, 0.0, 0.0,
