@@ -1,5 +1,6 @@
 [package]
 name = "nalgebra-rand-mvn"
+description = "Random multi-variate normal generation using nalgebra"
 version = "0.1.0"
 authors = ["Andrew Straw <strawman@astraw.com>"]
 edition = "2018"

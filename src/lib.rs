@@ -1,3 +1,4 @@
+//! Random multi-variate normal generation using nalgebra
 use rand::distributions::Distribution;
 use rand_distr::Normal;
 use nalgebra::{VectorN, MatrixMN};
