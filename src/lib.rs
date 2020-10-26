@@ -118,22 +118,26 @@ fn broadcast_add<Real, R, C>(arr: &MatrixMN<Real,R,C>, vec: &VectorN<Real,C>) ->
 #[cfg(test)]
 mod tests {
     use nalgebra as na;
-    use approx::relative_eq;
+    use approx::assert_relative_eq;
     use crate::*;
 
     /// Calculate the sample covariance
     ///
-    /// Calculates the sample covariances among K variables based on N observations
-    /// each. Calculates K x K covariance matrix from observations in `arr`, which
-    /// is N rows of K columns used to store N vectors of dimension K.
-    fn sample_covariance<Real: RealField, N: Dim, K: Dim>(arr: &MatrixMN<Real,N,K>) -> nalgebra::MatrixN<Real,K>
-        where DefaultAllocator: Allocator<Real, N, K>,
-            DefaultAllocator: Allocator<Real, K, N>,
-            DefaultAllocator: Allocator<Real, K, K>,
-            DefaultAllocator: Allocator<Real, K>,
+    /// Calculates the sample covariances among N-dimensional samples with M
+    /// observations each. Calculates N x N covariance matrix from observations
+    /// in `arr`, which is M rows of N columns used to store M vectors of
+    /// dimension N.
+    fn sample_covariance<Real: RealField, M: Dim, N: Dim>(
+        arr: &MatrixMN<Real, M, N>,
+    ) -> nalgebra::MatrixN<Real, N>
+    where
+        DefaultAllocator: Allocator<Real, M, N>,
+        DefaultAllocator: Allocator<Real, N, M>,
+        DefaultAllocator: Allocator<Real, N, N>,
+        DefaultAllocator: Allocator<Real, N>,
     {
-        let mu: VectorN<Real,K> = mean_axis0(arr);
-        let y = broadcast_add(arr,&-mu);
+        let mu: VectorN<Real, N> = mean_axis0(arr);
+        let y = broadcast_add(arr, &-mu);
         let n: Real = Real::from_usize(arr.nrows()).unwrap();
         let sigma = (y.transpose() * y) / (n - Real::one());
         sigma
@@ -163,22 +167,19 @@ mod tests {
 
     #[test]
     fn test_covar() {
-        use nalgebra::dimension::{U2, U3};
+        use nalgebra::core::dimension::{U2, U3};
 
-        let arr = MatrixMN::<f64,U3,U2>::new(
-            1.0, 0.1,
-            2.0, 0.2,
-            3.0, 0.3,
-        );
+        // We use the same example as https://numpy.org/doc/stable/reference/generated/numpy.cov.html
+
+        // However, our format is transposed compared to numpy. We have
+        // variables as the columns and samples as rows.
+        let arr = MatrixMN::<f64, U2, U3>::new(-2.1, -1.0, 4.3, 3.0, 1.1, 0.12).transpose();
 
         let c = sample_covariance(&arr);
 
-        let expected = nalgebra::MatrixN::<f64,U2>::new(
-            0.2, 0.1,
-            0.1, 0.01,
-        );
+        let expected = nalgebra::MatrixN::<f64, U2>::new(11.71, -4.286, -4.286, 2.144133);
 
-        relative_eq!(c, expected);
+        assert_relative_eq!(c, expected, epsilon = 1e-3);
     }
 
     #[test]
@@ -213,10 +214,10 @@ mod tests {
         assert!(y.ncols()==4);
 
         let mu2 = mean_axis0(&y);
-        relative_eq!(mu, mu2, epsilon = 0.2); // expect occasional failures here
+        assert_relative_eq!(mu, mu2, epsilon = 0.5); // expect occasional failures here
 
         let sigma2 = sample_covariance(&y);
-        relative_eq!(sigma, sigma2, epsilon = 0.2); // expect occasional failures here
+        assert_relative_eq!(sigma, sigma2, epsilon = 1.0); // expect occasional failures here
     }
 
     #[test]
@@ -232,9 +233,9 @@ mod tests {
         assert!(y.ncols()==4);
 
         let mu2 = mean_axis0(&y);
-        relative_eq!(mu, mu2, epsilon = 0.2); // expect occasional failures here
+        assert_relative_eq!(mu, mu2, epsilon = 0.2); // expect occasional failures here
 
         let sigma2 = sample_covariance(&y);
-        relative_eq!(sigma, sigma2, epsilon = 0.2); // expect occasional failures here
+        assert_relative_eq!(sigma, sigma2, epsilon = 0.2); // expect occasional failures here
     }
 }
