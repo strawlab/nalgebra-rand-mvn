@@ -6,9 +6,9 @@ authors = ["Andrew Straw <strawman@astraw.com>"]
 edition = "2018"
 
 [dependencies]
-nalgebra = "0.24"
-rand = "0.7"
-rand_distr = "0.2.1"
+nalgebra = "0.25.1"
+rand = "0.8"
+rand_distr = "0.4"
 
 [dev-dependencies]
 approx = "0.4"
