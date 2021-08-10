@@ -39,7 +39,7 @@ where
     let normal = Normal::new(0.0, 1.0).expect("creating normal");
     let mut rng = rand::thread_rng();
     OMatrix::<Real, R, C>::from_fn_generic(nrows, ncols, |_row, _col| {
-        Real::from_f64(normal.sample(&mut rng)).unwrap()
+        nalgebra::convert::<f64, Real>(normal.sample(&mut rng))
     })
 }
 
@@ -117,7 +117,7 @@ where
         ncols,
         arr.iter().enumerate().map(|(i, el)| {
             let vi = i / ndim; // integer div to get index into vec
-            *el + vec[vi]
+            el.clone() + vec[vi].clone()
         }),
     )
 }
@@ -145,7 +145,7 @@ mod tests {
     {
         let mu: OVector<Real, N> = mean_axis0(arr);
         let y = broadcast_add(arr, &-mu);
-        let n: Real = Real::from_usize(arr.nrows()).unwrap();
+        let n: Real = nalgebra::convert(arr.nrows() as f64);
         let sigma = (y.transpose() * y) / (n - Real::one());
         sigma
     }
@@ -163,8 +163,11 @@ mod tests {
         let mut mu = OVector::zeros_generic(vec_dim, na::Const);
         let scale: Real = Real::one() / na::convert(arr.nrows() as f64);
         for j in 0..arr.ncols() {
-            let col_sum = arr.column(j).iter().fold(Real::zero(), |acc, &x| acc + x);
-            mu[j] = col_sum * scale;
+            let col_sum = arr
+                .column(j)
+                .iter()
+                .fold(Real::zero(), |acc, x| acc.clone() + x.clone());
+            mu[j] = col_sum * scale.clone();
         }
         mu
     }
