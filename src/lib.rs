@@ -4,7 +4,7 @@ use rand::distributions::Distribution;
 use rand_distr::Normal;
 
 use nalgebra::allocator::Allocator;
-use nalgebra::{DefaultAllocator, Dim, DimName, DimSub, Dynamic, RealField};
+use nalgebra::{DefaultAllocator, Dim, DimName, DimSub, Dyn, RealField};
 
 /// An error
 #[derive(Debug)]
@@ -55,7 +55,7 @@ pub fn rand_mvn_generic<Real, Count, N>(
 where
     Real: RealField,
     Count: Dim,
-    N: Dim + DimSub<Dynamic>,
+    N: Dim + DimSub<Dyn>,
     DefaultAllocator: Allocator<Real, Count, N>,
     DefaultAllocator: Allocator<Real, N, Count>,
     DefaultAllocator: Allocator<Real, N, N>,
@@ -224,13 +224,13 @@ mod tests {
 
     #[test]
     fn test_rand_dynamic() {
-        use na::dimension::{Dynamic, U4};
+        use na::dimension::{Dyn, U4};
         let mu = OVector::<f64, U4>::new(1.0, 2.0, 3.0, 4.0);
         let sigma = nalgebra::OMatrix::<f64, U4, U4>::new(
             2.0, 0.1, 0.0, 0.0, 0.1, 0.2, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,
         );
-        let nrows = Dynamic::new(1_000);
-        let y: nalgebra::OMatrix<f64, Dynamic, U4> =
+        let nrows = Dyn(1_000);
+        let y: nalgebra::OMatrix<f64, Dyn, U4> =
             rand_mvn_generic(nrows, &mu, sigma.clone()).unwrap();
         assert!(y.ncols() == 4);
 
