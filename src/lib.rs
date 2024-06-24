@@ -34,7 +34,7 @@ pub enum ErrorKind {
 
 fn standard_normal<Real: RealField, R: Dim, C: Dim>(nrows: R, ncols: C) -> OMatrix<Real, R, C>
 where
-    DefaultAllocator: Allocator<Real, R, C>,
+    DefaultAllocator: Allocator<R, C>,
 {
     let normal = Normal::new(0.0, 1.0).expect("creating normal");
     let mut rng = rand::thread_rng();
@@ -56,10 +56,10 @@ where
     Real: RealField,
     Count: Dim,
     N: Dim + DimSub<Dyn>,
-    DefaultAllocator: Allocator<Real, Count, N>,
-    DefaultAllocator: Allocator<Real, N, Count>,
-    DefaultAllocator: Allocator<Real, N, N>,
-    DefaultAllocator: Allocator<Real, N>,
+    DefaultAllocator: Allocator<Count, N>,
+    DefaultAllocator: Allocator<N, Count>,
+    DefaultAllocator: Allocator<N, N>,
+    DefaultAllocator: Allocator<N>,
 {
     let ncols = N::from_usize(mu.nrows());
     let norm_data: OMatrix<Real, N, Count> = standard_normal(ncols, n_samples);
@@ -83,10 +83,10 @@ where
     Real: RealField,
     Count: DimName,
     N: DimName,
-    DefaultAllocator: Allocator<Real, Count, N>,
-    DefaultAllocator: Allocator<Real, N, Count>,
-    DefaultAllocator: Allocator<Real, N, N>,
-    DefaultAllocator: Allocator<Real, N>,
+    DefaultAllocator: Allocator<Count, N>,
+    DefaultAllocator: Allocator<N, Count>,
+    DefaultAllocator: Allocator<N, N>,
+    DefaultAllocator: Allocator<N>,
 {
     let nrows = Count::name();
     rand_mvn_generic(nrows, mu, sigma)
@@ -104,8 +104,8 @@ where
     Real: RealField,
     R: Dim,
     C: Dim,
-    DefaultAllocator: Allocator<Real, R, C>,
-    DefaultAllocator: Allocator<Real, C>,
+    DefaultAllocator: Allocator<R, C>,
+    DefaultAllocator: Allocator<C>,
 {
     let ndim = arr.nrows();
     let nrows = R::from_usize(arr.nrows());
@@ -138,10 +138,10 @@ mod tests {
         arr: &OMatrix<Real, M, N>,
     ) -> nalgebra::OMatrix<Real, N, N>
     where
-        DefaultAllocator: Allocator<Real, M, N>,
-        DefaultAllocator: Allocator<Real, N, M>,
-        DefaultAllocator: Allocator<Real, N, N>,
-        DefaultAllocator: Allocator<Real, N>,
+        DefaultAllocator: Allocator<M, N>,
+        DefaultAllocator: Allocator<N, M>,
+        DefaultAllocator: Allocator<N, N>,
+        DefaultAllocator: Allocator<N>,
     {
         let mu: OVector<Real, N> = mean_axis0(arr);
         let y = broadcast_add(arr, &-mu);
@@ -156,8 +156,8 @@ mod tests {
         Real: RealField,
         R: Dim,
         C: Dim,
-        DefaultAllocator: Allocator<Real, R, C>,
-        DefaultAllocator: Allocator<Real, C>,
+        DefaultAllocator: Allocator<R, C>,
+        DefaultAllocator: Allocator<C>,
     {
         let vec_dim: C = C::from_usize(arr.ncols());
         let mut mu = OVector::zeros_generic(vec_dim, na::Const);
