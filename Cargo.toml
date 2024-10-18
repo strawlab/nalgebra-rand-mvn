@@ -4,6 +4,7 @@ description = "Random multi-variate normal generation using nalgebra"
 version = "0.1.0"
 authors = ["Andrew Straw <strawman@astraw.com>"]
 edition = "2018"
+license = "MIT OR Apache-2.0"
 
 [dependencies]
 nalgebra = "0.33"
