@@ -3,8 +3,12 @@ name = "nalgebra-rand-mvn"
 description = "Random multi-variate normal generation using nalgebra"
 version = "0.1.0"
 authors = ["Andrew Straw <strawman@astraw.com>"]
-edition = "2018"
+edition = "2021"
 license = "MIT OR Apache-2.0"
+repository = "https://github.com/strawlab/nalgebra-rand-mvn"
+rust-version = "1.65"
+keywords = ["random", "normal", "nalgebra", "generation", "multi-variate"]
+categories = ["mathematics"]
 
 [dependencies]
 nalgebra = "0.33"
