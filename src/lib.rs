@@ -1,6 +1,6 @@
 //! Random multi-variate normal generation using nalgebra
 use nalgebra::{OMatrix, OVector};
-use rand::distributions::Distribution;
+use rand::distr::Distribution;
 use rand_distr::Normal;
 
 use nalgebra::allocator::Allocator;
@@ -37,7 +37,7 @@ where
     DefaultAllocator: Allocator<R, C>,
 {
     let normal = Normal::new(0.0, 1.0).expect("creating normal");
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
     OMatrix::<Real, R, C>::from_fn_generic(nrows, ncols, |_row, _col| {
         nalgebra::convert::<f64, Real>(normal.sample(&mut rng))
     })

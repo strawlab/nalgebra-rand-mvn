@@ -11,9 +11,9 @@ keywords = ["random", "normal", "nalgebra", "generation", "multi-variate"]
 categories = ["mathematics"]
 
 [dependencies]
-nalgebra = "0.33"
-rand = "0.8"
-rand_distr = "0.4"
+nalgebra = "0.34"
+rand = "0.9"
+rand_distr = "0.5"
 
 [dev-dependencies]
 approx = "0.5"
