@@ -146,8 +146,7 @@ mod tests {
         let mu: OVector<Real, N> = mean_axis0(arr);
         let y = broadcast_add(arr, &-mu);
         let n: Real = nalgebra::convert(arr.nrows() as f64);
-        let sigma = (y.transpose() * y) / (n - Real::one());
-        sigma
+        (y.transpose() * y) / (n - Real::one())
     }
 
     /// Calculate the mean of R x C matrix along the rows and return C dim vector
@@ -230,8 +229,7 @@ mod tests {
             2.0, 0.1, 0.0, 0.0, 0.1, 0.2, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,
         );
         let nrows = Dyn(1_000);
-        let y: nalgebra::OMatrix<f64, Dyn, U4> =
-            rand_mvn_generic(nrows, &mu, sigma.clone()).unwrap();
+        let y: nalgebra::OMatrix<f64, Dyn, U4> = rand_mvn_generic(nrows, &mu, sigma).unwrap();
         assert!(y.ncols() == 4);
 
         let mu2 = mean_axis0(&y);

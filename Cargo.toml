@@ -6,12 +6,12 @@ authors = ["Andrew Straw <strawman@astraw.com>"]
 edition = "2021"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/strawlab/nalgebra-rand-mvn"
-rust-version = "1.65"
+rust-version = "1.89"
 keywords = ["random", "normal", "nalgebra", "generation", "multi-variate"]
 categories = ["mathematics"]
 
 [dependencies]
-nalgebra = "0.34"
+nalgebra = "0.35"
 rand = "0.9"
 rand_distr = "0.5"
 
