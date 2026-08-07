@@ -63,6 +63,23 @@ where
 {
     let ncols = N::from_usize(mu.nrows());
     let norm_data: OMatrix<Real, N, Count> = standard_normal(ncols, n_samples);
+    transform_standard_normal(norm_data, mu, sigma)
+}
+
+fn transform_standard_normal<Real, Count, N>(
+    norm_data: OMatrix<Real, N, Count>,
+    mu: &OVector<Real, N>,
+    sigma: nalgebra::OMatrix<Real, N, N>,
+) -> Result<OMatrix<Real, Count, N>, Error>
+where
+    Real: RealField,
+    Count: Dim,
+    N: Dim + DimSub<Dyn>,
+    DefaultAllocator: Allocator<Count, N>,
+    DefaultAllocator: Allocator<N, Count>,
+    DefaultAllocator: Allocator<N, N>,
+    DefaultAllocator: Allocator<N>,
+{
     let sigma_chol: nalgebra::OMatrix<Real, N, N> = nalgebra::linalg::Cholesky::new(sigma)
         .ok_or(Error {
             kind: ErrorKind::NotDefinitePositive,
@@ -213,12 +230,7 @@ mod tests {
         let y: OMatrix<f64, U25, U4> = rand_mvn(&mu, sigma).unwrap();
         assert!(y.nrows() == 25);
         assert!(y.ncols() == 4);
-
-        let mu2 = mean_axis0(&y);
-        assert_relative_eq!(mu, mu2, epsilon = 0.5); // expect occasional failures here
-
-        let sigma2 = sample_covariance(&y);
-        assert_relative_eq!(sigma, sigma2, epsilon = 1.0); // expect occasional failures here
+        assert!(y.iter().all(|value| value.is_finite()));
     }
 
     #[test]
@@ -228,14 +240,42 @@ mod tests {
         let sigma = nalgebra::OMatrix::<f64, U4, U4>::new(
             2.0, 0.1, 0.0, 0.0, 0.1, 0.2, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,
         );
-        let nrows = Dyn(1_000);
+        let nrows = Dyn(10);
         let y: nalgebra::OMatrix<f64, Dyn, U4> = rand_mvn_generic(nrows, &mu, sigma).unwrap();
+        assert!(y.nrows() == 10);
         assert!(y.ncols() == 4);
+        assert!(y.iter().all(|value| value.is_finite()));
+    }
 
-        let mu2 = mean_axis0(&y);
-        assert_relative_eq!(mu, mu2, epsilon = 0.2); // expect occasional failures here
+    #[test]
+    fn test_normal_transformation_statistics() {
+        use na::dimension::{U4, U8};
+
+        let mu = OVector::<f64, U4>::new(1.0, 2.0, 3.0, 4.0);
+        let sigma = nalgebra::OMatrix::<f64, U4, U4>::new(
+            2.0, 0.1, 0.0, 0.0, 0.1, 0.2, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0,
+        );
+
+        // Eight symmetric samples with exactly zero sample mean and identity
+        // sample covariance. This tests the MVN transformation without relying
+        // on random samples occasionally satisfying statistical tolerances.
+        let scale = (7.0_f64 / 2.0).sqrt();
+        let norm_data = OMatrix::<f64, U4, U8>::from_columns(&[
+            OVector::<f64, U4>::new(scale, 0.0, 0.0, 0.0),
+            OVector::<f64, U4>::new(-scale, 0.0, 0.0, 0.0),
+            OVector::<f64, U4>::new(0.0, scale, 0.0, 0.0),
+            OVector::<f64, U4>::new(0.0, -scale, 0.0, 0.0),
+            OVector::<f64, U4>::new(0.0, 0.0, scale, 0.0),
+            OVector::<f64, U4>::new(0.0, 0.0, -scale, 0.0),
+            OVector::<f64, U4>::new(0.0, 0.0, 0.0, scale),
+            OVector::<f64, U4>::new(0.0, 0.0, 0.0, -scale),
+        ]);
+
+        let y = transform_standard_normal(norm_data, &mu, sigma).unwrap();
 
         let sigma2 = sample_covariance(&y);
-        assert_relative_eq!(sigma, sigma2, epsilon = 0.2); // expect occasional failures here
+        let mu2 = mean_axis0(&y);
+        assert_relative_eq!(mu, mu2, epsilon = 1e-12);
+        assert_relative_eq!(sigma, sigma2, epsilon = 1e-12);
     }
 }
